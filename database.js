@@ -16,9 +16,9 @@ async function getDb() {
         db = new SQL.Database();
     }
 
-    db.run('CREATE TABLE IF NOT EXISTS produits (id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT NOT NULL, pharmacie TEXT NOT NULL, ville TEXT NOT NULL)');
+    db.run('CREATE TABLE IF NOT EXISTS produits (id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT NOT NULL, pharmacie TEXT NOT NULL, ville TEXT NOT NULL, latitude REAL, longitude REAL)');
 
-    db.run('CREATE TABLE IF NOT EXISTS utilisateurs (id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT NOT NULL, email TEXT NOT NULL UNIQUE, mot_de_passe TEXT NOT NULL, role TEXT NOT NULL, statut TEXT NOT NULL DEFAULT "en_attente", created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
+    db.run('CREATE TABLE IF NOT EXISTS utilisateurs (id INTEGER PRIMARY KEY AUTOINCREMENT, nom TEXT NOT NULL, email TEXT NOT NULL UNIQUE, mot_de_passe TEXT NOT NULL, role TEXT NOT NULL, statut TEXT NOT NULL DEFAULT "en_attente", latitude REAL, longitude REAL, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
 
     db.run('CREATE TABLE IF NOT EXISTS ordonnances (id INTEGER PRIMARY KEY AUTOINCREMENT, pharmacie_id INTEGER NOT NULL, fichier TEXT NOT NULL, statut TEXT NOT NULL DEFAULT "en_attente", created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
 
@@ -28,9 +28,13 @@ async function getDb() {
     const total = result[0] ? result[0].values[0][0] : 0;
 
     if (total === 0) {
-        db.run('INSERT INTO produits (nom, pharmacie, ville) VALUES (?,?,?)', ['Paracetamol', 'Pharmacie Centrale', 'Lome']);
-        db.run('INSERT INTO produits (nom, pharmacie, ville) VALUES (?,?,?)', ['Amoxicilline', 'Pharmacie Sante Plus', 'Kpalime']);
-        db.run('INSERT INTO produits (nom, pharmacie, ville) VALUES (?,?,?)', ['Ibuprofene', 'Pharmacie du Peuple', 'Sokode']);
+        // Coordonnées GPS réelles des villes du Togo
+        db.run('INSERT INTO produits (nom, pharmacie, ville, latitude, longitude) VALUES (?,?,?,?,?)',
+            ['Paracetamol', 'Pharmacie Centrale', 'Lome', 6.1375, 1.2123]);
+        db.run('INSERT INTO produits (nom, pharmacie, ville, latitude, longitude) VALUES (?,?,?,?,?)',
+            ['Amoxicilline', 'Pharmacie Sante Plus', 'Kpalime', 6.9000, 0.6333]);
+        db.run('INSERT INTO produits (nom, pharmacie, ville, latitude, longitude) VALUES (?,?,?,?,?)',
+            ['Ibuprofene', 'Pharmacie du Peuple', 'Sokode', 8.9833, 1.1333]);
         console.log('Donnees de test inserees');
     }
 
