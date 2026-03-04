@@ -22,6 +22,8 @@ async function getDb() {
 
     db.run('CREATE TABLE IF NOT EXISTS ordonnances (id INTEGER PRIMARY KEY AUTOINCREMENT, pharmacie_id INTEGER NOT NULL, fichier TEXT NOT NULL, statut TEXT NOT NULL DEFAULT "en_attente", created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
 
+    db.run('CREATE TABLE IF NOT EXISTS commandes (id INTEGER PRIMARY KEY AUTOINCREMENT, pharmacie_commandeur_id INTEGER NOT NULL, pharmacie_fournisseur_id INTEGER NOT NULL, produit_id INTEGER NOT NULL, ordonnance_id INTEGER NOT NULL, statut TEXT NOT NULL DEFAULT "en_attente", created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
+
     const result = db.exec('SELECT COUNT(*) as total FROM produits');
     const total = result[0] ? result[0].values[0][0] : 0;
 

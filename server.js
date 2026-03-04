@@ -1,21 +1,41 @@
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 const getDb = require('./database');
 const authRoutes = require('./auth');
+const ordonnancesRoutes = require('./ordonnances');
+const commandesRoutes = require('./commandes');
 const { verifierToken, verifierRole } = require('./middleware');
 
 app.use(express.json());
-
 app.use('/auth', authRoutes);
-const ordonnancesRoutes = require('./ordonnances');
 app.use('/ordonnances', ordonnancesRoutes);
+app.use('/commandes', commandesRoutes);
 app.use('/uploads', express.static('uploads'));
+app.set('io', io);
+
+// SOCKET.IO — connexion en temps reel
+io.on('connection', (socket) => {
+    console.log('Utilisateur connecte : ' + socket.id);
+
+    // Chaque pharmacie rejoint sa propre salle
+    socket.on('rejoindre', (pharmacie_id) => {
+        socket.join('pharmacie_' + pharmacie_id);
+        console.log('Pharmacie ' + pharmacie_id + ' a rejoint sa salle');
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Utilisateur deconnecte : ' + socket.id);
+    });
+});
 
 app.get('/', (req, res) => {
     res.send('Serveur Pharmacie actif');
 });
 
-// Route publique — tout le monde peut chercher un medicament
 app.get('/recherche/:nom', async (req, res) => {
     const db = await getDb();
     const nomProduit = req.params.nom.toLowerCase();
@@ -37,7 +57,6 @@ app.get('/recherche/:nom', async (req, res) => {
     }
 });
 
-// Route protegee — seulement les pharmacies connectees peuvent ajouter
 app.post('/produits', verifierToken, verifierRole('pharmacie'), async (req, res) => {
     const db = await getDb();
     const { nom, pharmacie, ville } = req.body;
@@ -51,13 +70,10 @@ app.post('/produits', verifierToken, verifierRole('pharmacie'), async (req, res)
     const fs = require('fs');
     fs.writeFileSync('./pharmacie.db', Buffer.from(db.export()));
 
-    res.status(201).json({
-        message: 'Medicament ajoute avec succes',
-        ajoute_par: req.utilisateur.nom
-    });
+    res.status(201).json({ message: 'Medicament ajoute avec succes', ajoute_par: req.utilisateur.nom });
 });
 
 const PORT = 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log('Serveur lance sur http://localhost:' + PORT);
 });
