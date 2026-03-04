@@ -24,17 +24,15 @@ async function getDb() {
 
     db.run('CREATE TABLE IF NOT EXISTS commandes (id INTEGER PRIMARY KEY AUTOINCREMENT, pharmacie_commandeur_id INTEGER NOT NULL, pharmacie_fournisseur_id INTEGER NOT NULL, produit_id INTEGER NOT NULL, ordonnance_id INTEGER NOT NULL, statut TEXT NOT NULL DEFAULT "en_attente", created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
 
+    db.run('CREATE TABLE IF NOT EXISTS livraisons (id INTEGER PRIMARY KEY AUTOINCREMENT, commande_id INTEGER NOT NULL, livreur_id INTEGER, statut TEXT NOT NULL DEFAULT "cherche_livreur", distance_parcourue REAL DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
+
     const result = db.exec('SELECT COUNT(*) as total FROM produits');
     const total = result[0] ? result[0].values[0][0] : 0;
 
     if (total === 0) {
-        // Coordonnées GPS réelles des villes du Togo
-        db.run('INSERT INTO produits (nom, pharmacie, ville, latitude, longitude) VALUES (?,?,?,?,?)',
-            ['Paracetamol', 'Pharmacie Centrale', 'Lome', 6.1375, 1.2123]);
-        db.run('INSERT INTO produits (nom, pharmacie, ville, latitude, longitude) VALUES (?,?,?,?,?)',
-            ['Amoxicilline', 'Pharmacie Sante Plus', 'Kpalime', 6.9000, 0.6333]);
-        db.run('INSERT INTO produits (nom, pharmacie, ville, latitude, longitude) VALUES (?,?,?,?,?)',
-            ['Ibuprofene', 'Pharmacie du Peuple', 'Sokode', 8.9833, 1.1333]);
+        db.run('INSERT INTO produits (nom, pharmacie, ville, latitude, longitude) VALUES (?,?,?,?,?)', ['Paracetamol', 'Pharmacie Centrale', 'Lome', 6.1375, 1.2123]);
+        db.run('INSERT INTO produits (nom, pharmacie, ville, latitude, longitude) VALUES (?,?,?,?,?)', ['Amoxicilline', 'Pharmacie Sante Plus', 'Kpalime', 6.9000, 0.6333]);
+        db.run('INSERT INTO produits (nom, pharmacie, ville, latitude, longitude) VALUES (?,?,?,?,?)', ['Ibuprofene', 'Pharmacie du Peuple', 'Sokode', 8.9833, 1.1333]);
         console.log('Donnees de test inserees');
     }
 

@@ -9,21 +9,30 @@ const getDb = require('./database');
 const authRoutes = require('./auth');
 const ordonnancesRoutes = require('./ordonnances');
 const commandesRoutes = require('./commandes');
+const livraisonsRoutes = require('./livraisons');
 const { verifierToken, verifierRole } = require('./middleware');
 
 app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/ordonnances', ordonnancesRoutes);
 app.use('/commandes', commandesRoutes);
+app.use('/livraisons', livraisonsRoutes);
 app.use('/uploads', express.static('uploads'));
 app.set('io', io);
 
 io.on('connection', (socket) => {
     console.log('Utilisateur connecte : ' + socket.id);
+
     socket.on('rejoindre', (pharmacie_id) => {
         socket.join('pharmacie_' + pharmacie_id);
         console.log('Pharmacie ' + pharmacie_id + ' a rejoint sa salle');
     });
+
+    socket.on('rejoindre_livreur', (livreur_id) => {
+        socket.join('livreur_' + livreur_id);
+        console.log('Livreur ' + livreur_id + ' a rejoint sa salle');
+    });
+
     socket.on('disconnect', () => {
         console.log('Utilisateur deconnecte : ' + socket.id);
     });
